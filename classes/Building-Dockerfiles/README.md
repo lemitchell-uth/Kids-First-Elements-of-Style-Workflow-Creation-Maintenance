@@ -1,5 +1,5 @@
 <p>
-<img src="https://github.com/NIH-NICHD/Elements-of-Style-Workflow-Creation-Maintenance/blob/main/assets/Moby-Logo.png" width=200>
+<img src="https://github.com/NIH-NICHD/Kids-First-Elements-of-Style-Workflow-Creation-Maintenance/blob/main/assets/Moby-Logo.png" width=200>
 </p>
 <b>
 </b>
@@ -55,7 +55,7 @@ The `docker` application requires the exact filename `Dockerfile` when creating 
 
 In the google shell editor window this time, open the file named `Dockerfile`
 
-<img src="https://github.com/NIH-NICHD/Elements-of-Style-Workflow-Creation-Maintenance/blob/main/assets/GoogleShellDockerFile1.png">
+<img src="https://github.com/NIH-NICHD/Kids-First-Elements-of-Style-Workflow-Creation-Maintenance/blob/main/assets/GoogleShellDockerFile1.png">
 
 Copy the contents of the window below and paste it into your window.
 
@@ -76,7 +76,7 @@ ENV PATH /opt/conda/envs/${ENV_NAME}/bin:$PATH
 
 After pasting in the window, your file should look like this:
 
-<img src="https://github.com/NIH-NICHD/Elements-of-Style-Workflow-Creation-Maintenance/blob/main/assets/GoogleShellDockerfile2.png">
+<img src="https://github.com/NIH-NICHD/Kids-First-Elements-of-Style-Workflow-Creation-Maintenance/blob/main/assets/GoogleShellDockerfile2.png">
 
 The `docker` application understands the commands `FROM`, `LABEL`, `ARG ENV_NAME`, `COPY`, `RUN` and `ENV PATH`.  
 It also knows that `#` are comments and are for the human reader that is reading this file to understand what is happening within the file itself.
@@ -89,7 +89,7 @@ You will see later that you can `COPY` your own custom scripts for use within th
 
 Notice as well we are prompted to look at our quotas, not an infinite resource but pretty good availability for a free asset.
 
-<img src="https://github.com/NIH-NICHD/Elements-of-Style-Workflow-Creation-Maintenance/blob/main/assets/GoogleShellQuotaInformation.png">
+<img src="https://github.com/NIH-NICHD/Kids-First-Elements-of-Style-Workflow-Creation-Maintenance/blob/main/assets/GoogleShellQuotaInformation.png">
 
 Now we will inspect our `environment.yml` which is being used by `conda` to install our desired application.
 
@@ -138,12 +138,233 @@ docker build -t fastqc .
 
 Here the google shell asks to authorize it to complete the task.
 
-<img src="https://github.com/NIH-NICHD/Elements-of-Style-Workflow-Creation-Maintenance/blob/main/assets/GoogleShellDockerFileAuthorize.png">
+<img src="https://github.com/NIH-NICHD/Kids-First-Elements-of-Style-Workflow-Creation-Maintenance/blob/main/assets/GoogleShellDockerFileAuthorize.png">
 
 When it completes, we can verify that the image has been created listing all available images with the following command:
 
 ```bash
 docker images
+```
+
+### Test this image from the command line
+
+By now you see what we have done.   You could install *`fastqc`* using the command
+
+```bash
+conda install -c bioconda fastqc -y
+```
+
+We see what is happening is using the *`Anaconda`* *`channel`* *`bioconda`* we are installing fastqc for our local use within our own file system on this small virtual instance made free for us from *`Google`*.
+
+Let's do that real quick to show what I mean.
+
+Go ahead and copy the line above on the command line and install fastqc within our *`eos`* environment.
+
+As expected it has been installed within the *`binary`* directory, the directory that contains *`executables`* and shortened to the *`unix`* convention to be just *`bin`* of our controlled environment *`eos`*.   
+
+This would be fine if we wanted to do local work on some fastqc files.  But it would not be available for the workflow that will be spun up on ephemeral machines where we would have to build our entire environment from scratch.   But I have made the argument, that what is more sustainable is if we containerize at the process level, our work will be more durable, more portable, and more repurposable.  That is it will be available for me to use for future work.
+
+So we built a container image.   Now how could we use that container image?
+
+To test this tool from the command line 
+
+Set up an environment variable capturing your current command line:
+```bash
+PWD=$(pwd)
+```
+
+To make our local directory available to the image, which is a self-contained environment, we need to do something called mounting and use your current directory and call the tool now encapsulated within the environment.   
+
+I use this command to do that.
+
+```bash
+docker run -it -v $PWD:$PWD -w $PWD fastqc fastqc -h
+```
+
+You can read more about what is happening in detail with [Docker containers and images](https://docs.docker.com/get-started/overview/).   
+
+You don't need to know every detail to use them.
+
+### Add this code to your GitHub repository
+
+It is a best practice with GitHub to always add a *`README.md`*.   Let's add this file and then from the command line use the *`GitHub`* command line tools to push this to our *`GitHub`* repository.
+
+```bash
+touch README.md
+```
+
+Open with the Code Editor (the Markdown Editor is experimental).  To do so, hover over the *`README.md`* file and click *`Open With...`* and select *`Code Editor`*.
+
+<img src="https://github.com/NIH-NICHD/Kids-First-Elements-of-Style-Workflow-Creation-Maintenance/blob/main/assets/GoogleShellSelectCodeEditor.png">
+
+Copy the contents here that explain what we have in this repository
+
+```bash
+# fastqc-docker
+Build a Container for bioconda fastqc
+
+Steps to build this docker container.
+1. Look up on [anaconda](https://anaconda.org/) the tool you wish to install
+2. create an `environment.yml` file either manually or automatically
+3. Use the template `Dockerfile` modifying if necessary (in our case we have no custom files for the `src` directory so we do not use that)
+4. Build the Docker Image
+5. Set up GitHub Actions
+
+To edit the files:
+1. Use a simple editor (Text Edit on Mac is fine) - we want to be cautious about unseen characters
+2. Use emacs (can be installed with conda)
+```bash
+conda install -c conda forge emacs
+```
+
+To build your image from the command line:
+* Can do this on [Google shell](https://shell.cloud.google.com) - docker is installed and available
+
+```bash
+docker build -t fastqc .
+```
+
+To test this tool from the command line 
+
+Set up an environment variable capturing your current command line:
+```bash
+PWD=$(pwd)
+```
+
+Then mount and use your current directory and call the tool now encapsulated within the environment.
+```bash
+docker run -it -v $PWD:$PWD -w $PWD fastqc fastqc -h
+```
+
+### Use *`GitHub`* Command line tool *`gh`* to authenticate before we push create our repository.
+
+The Google shell comes with the *`gh`* already installed.  So we just begin with authentication.
+
+```bash
+gh auth login
+```
+
+As we did yesterday, authenticate with your *`Personal Authentication Token`*
+
+```bash
+(eos) ad376@cloudshell:~/fastqc-docker$ gh auth login
+? What account do you want to log into? GitHub.com
+? What is your preferred protocol for Git operations? HTTPS
+? Authenticate Git with your GitHub credentials? Yes
+? How would you like to authenticate GitHub CLI?  [Use arrows to move, type to filter]
+  Login with a web browser
+> Paste an authentication token
+```
+
+Now we can from the command line create this repository.
+
+```bash
+git init
+```
+
+What you will see will be something like this:
+
+```bash
+(eos) ad376@cloudshell:~/fastqc-docker$ git init
+hint: Using 'master' as the name for the initial branch. This default branch name
+hint: is subject to change. To configure the initial branch name to use in all
+hint: of your new repositories, which will suppress this warning, call:
+hint: 
+hint:   git config --global init.defaultBranch <name>
+hint: 
+hint: Names commonly chosen instead of 'master' are 'main', 'trunk' and
+hint: 'development'. The just-created branch can be renamed via this command:
+hint: 
+hint:   git branch -m <name>
+Initialized empty Git repository in /home/ad376/fastqc-docker/.git/
+```
+
+We don't really need to worry too much about this content, you can see that it default names the initial branch *`master`* and that you have the option to change it.
+
+All the files in this subdirectory we want to add to the repository.
+
+Let's go ahead and tell *`git`* who we are.
+
+```bash
+git config --global user.email "adeslat@scitechcon.org"
+git config --global user.name "adeslatt"
+```
+
+Following [*`GitHub`*'s updated instructions on how to create a new repository from the command line](https://docs.github.com/en/get-started/importing-your-projects-to-github/importing-source-code-to-github/adding-locally-hosted-code-to-github#adding-a-local-repository-to-github-with-github-cli)
+
+We now type
+
+```bash
+git init -b main
+```
+
+And then we type
+
+```bash
+git add . && git commit -m "initial commit"
+```
+
+We then use the *`gh repo create`* command to create the reposistory.
+
+```bash
+gh repo create
+```
+
+Which then prompts us to what we need to do
+
+```bash
+? What would you like to do? Create a new repository on GitHub from scratch
+? Repository name fastqc-docker
+? Description A docker container for the fastqc command
+? Visibility Public
+? Would you like to add a .gitignore? No
+? Would you like to add a license? No
+? This will create "fastqc-docker" as a public repository on GitHub. Continue? Yes
+✓ Created repository adeslatt/fastqc-docker on GitHub
+? Clone the new repository locally? Yes
+hint: Using 'master' as the name for the initial branch. This default branch name
+hint: is subject to change. To configure the initial branch name to use in all
+hint: of your new repositories, which will suppress this warning, call:
+hint: 
+hint:   git config --global init.defaultBranch <name>
+hint: 
+hint: Names commonly chosen instead of 'master' are 'main', 'trunk' and
+hint: 'development'. The just-created branch can be renamed via this command:
+hint: 
+hint:   git branch -m <name>
+Initialized empty Git repository in /home/ad376/fastqc-docker/fastqc-docker/.git/
+```
+
+And then
+
+```bash
+git remote add origin https://github.com/adeslatt/fastqc-docker.git
+```
+
+As we did yesterday we can verify the setup
+
+```bash
+git remote -v
+```
+
+To do the final step of getting our files up on GitHub type
+
+```bash
+git push -u origin main
+```
+
+This takes our local repository and pushes it onto GitHub
+
+```bash
+Enumerating objects: 5, done.
+Counting objects: 100% (5/5), done.
+Delta compression using up to 2 threads
+Compressing objects: 100% (4/4), done.
+Writing objects: 100% (5/5), 633 bytes | 633.00 KiB/s, done.
+Total 5 (delta 0), reused 0 (delta 0), pack-reused 0
+To https://github.com/adeslatt/fastqc-docker.git
+ * [new branch]      main -> main
+Branch 'main' set up to track remote branch 'main' from 'origin'.
 ```
 
 ## Building the `multiqc` Docker image 
@@ -174,7 +395,7 @@ And build the image
 docker build -t multiqc .
 ```
 
-### Inspect what images you have now available to you
+### Inspect what images you have now available to you locally
 
 You can see what you have built -- and see that we have `tag`ged our files in a certain way
 
